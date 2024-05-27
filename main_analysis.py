@@ -61,6 +61,6 @@ if __name__ == "__main__":
 
     df_output = pd.DataFrame.from_dict(results)
     print(results)
-    df_output.to_csv("{}/{}.csv".format(args.output_loc, args.subject))
+    df_output.to_csv("{}/{}_{}.csv".format(args.output_loc, args.subject, args.year))
     log.write(str_log)
 
