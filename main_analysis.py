@@ -19,7 +19,7 @@ def parse_args():
                         help="subject of interest")
     parser.add_argument("--year", required=True, type=int,
                         help="the year in which the article was published")
-    parser.add_argument("--month", default=None, type=int,
+    parser.add_argument("--month", default=None, type=int, nargs='+',
                         help="the month in which the article was published")
     parser.add_argument("--output_loc", required=True,
                         help="the path to the folder where the output is saved")
@@ -34,13 +34,18 @@ if __name__ == "__main__":
     os.makedirs(args.output_loc, exist_ok=True)
     log = open("{}/log.txt".format(args.output_loc), "w")
     str_log = ""
-    months = [1, 2, 3, 4, 5]
+    months = args.month
+    if months is None:
+        if args.year == 2024:
+            months = [1, 2, 3, 4, 5]
+        else:
+            months = list(range(1, 13))
+
     for file in os.listdir(args.data_loc):
         full_path = os.path.join(args.data_loc, file)
         if ".parquet" in file:
             print(file)
             year, month = get_year_month(file)
-
             if month in months:
                 print("Running MLE for {}, {}, {}".format(args.subject, year, month))
                 try:
