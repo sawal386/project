@@ -21,6 +21,9 @@ def parse_args():
 
     return parser.parse_args()
 
+
+
+
 if __name__ == "__main__":
 
     args = parse_args()
@@ -29,24 +32,28 @@ if __name__ == "__main__":
     #year = 2024
     #month = 1
     output_folder = "{}/{}".format(args.output_loc, args.subject)
-    if args.month is None:
-        name = "{}_{}".format(args.year, "all")
-    else:
-        name = "{}_{}".format(args.year, args.month)
-
-    print("Generating data for subject: {}, year: {}, month:{}".format(args.subject,
-                                                                    args.year, args.month))
-
     json_path = "{}/{}.json".format(args.input_loc, args.year)
     with open(json_path, "r") as f:
         raw_json = json.load(f)
-
     all_collection = convert_raw_json(raw_json)
     subj_collection = all_collection.get_articles_subject(args.subject)
-    subj_time_collection = subj_collection.get_articles_time(args.year, args.month)
-    subj_time_collection.assign_subject(args.subject)
-    print("Final Size:", subj_time_collection.get_size())
-    subj_time_collection.export_parquet(output_folder, name)
+    if args.month is None:
+        for m in range(1, 13):
+            print("Generating data for subject: {}, year: {}, month:{}".format(args.subject,
+                                                                               args.year, m))
+            name = "{}_{}".format(args.year, m)
+            subj_time_collection = subj_collection.get_articles_time(args.year, m)
+            subj_time_collection.assign_subject(args.subject)
+            print("Final Size:", subj_time_collection.get_size())
+            subj_time_collection.export_parquet(output_folder, name)
+    else:
+        ## Todo this later
+        name = "{}_{}".format(args.year, args.month)
+
+
+
+
+
 
 
 
