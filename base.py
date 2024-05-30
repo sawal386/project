@@ -178,6 +178,7 @@ class ArticleCollection:
         df_meta.to_csv(meta_path)
         print("File Exported as: {}".format(full_path))
 
+
 class SubjectCollection(ArticleCollection):
 
     def __init__(self, subject_name):
@@ -194,10 +195,14 @@ class Article:
     Attributes:
         date: (str) the date when the article was published
         subject: (str) the subject the article is associated with
+        subject_score: (float) the score for the subject prediction
+        language: (str) the language in which the article was written
+        language_score: (float) the score for language prediction
         description: (str) the description of the article
         title: (str) the title of the article
         identifier: (str) the identifier in the source json file
         base_key: (str) the key in the json file associated with the article
+        source: (str)
     """
 
     def __init__(self, source_json, base_key=None, subject_key="predicted_fos"):
@@ -210,8 +215,10 @@ class Article:
         all_subjects = source_json[subject_key]
         if len(all_subjects) != 0:
             self.subject = all_subjects[0][0].lower()
+            self.subject_score = float(all_subjects[0][1])
         else:
             self.subject = None
+            self.subject_score = None
         try:
             self.description = source_json["description"][0]
         except IndexError:
@@ -226,5 +233,23 @@ class Article:
             self.identifier = source_json["identifier"][0]
         except IndexError:
             self.identifier = None
+
+        try:
+            self.pred_language = source_json["predicted_language"][0][0]
+            self.pred_language_score = float(source_json["predicted_language"][0][1])
+        except IndexError:
+            self.pred_language = None
+            self.pred_language_score = None
+        try:
+            self.language = source_json["language"][0]
+        except IndexError:
+            self.language = None
+
+        try:
+            self.source = source_json["source"][0]
+        except IndexError:
+            self.source = None
+
+
 
         self.base_key = base_key

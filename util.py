@@ -1,7 +1,9 @@
 ## This file contain useful functions
+import pickle
 
 import spacy
 import re
+from pathlib import Path
 
 def year_checker(collection, year):
     """
@@ -71,3 +73,22 @@ def get_year_month(input_str):
     month = int(parts[1].split('.')[0])
 
     return year, month
+
+def save_pkl(obj, folder, name):
+    """
+    save the object as a pkl file
+    Args:
+        obj: (object)
+        folder: (str) path to the folder
+        name: (str) name of the fole
+    """
+
+    path = Path(folder)
+    path.mkdir(parents=True, exist_ok=True)
+    if ".pkl" not in name:
+        name = "{}.pkl".format(name)
+    full = path / name
+    with open(full, "wb") as handle:
+        pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+

@@ -2,9 +2,9 @@
 
 source scripts/settings.sh
 
-for sub in "medicine"
+for sub in "education"
 do
-    for year in 2024
+    for year in 2021
     do
         python main_generate.py \
             --input_loc ${BASE_JSON_DIR} \
