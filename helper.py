@@ -1,11 +1,22 @@
+## This should actually be named converter.
+## It contains the functions to convert information from raw json file to
+## an article object. The filters are based on the notebook preprocessing.ipynb
+
 from base import Article, ArticleCollection
 from tqdm import tqdm
 import datetime
 from util import tokenize
 import spacy
 from log import setup_logger
+
 def check_date_validity(date):
-    """check if the date is valid"""
+    """
+    check if the date is valid
+    Args:
+        date: (str)
+    Returns:
+        (bool)
+    """
 
     if date is None:
         return False
@@ -44,7 +55,6 @@ def check_score(score, cutoff=0.9):
     Args:
         cutoff: (float)
         score: (float)
-
     Returns:
         (bool)
     """
@@ -58,12 +68,10 @@ def check_score(score, cutoff=0.9):
 
 def convert_raw_json(json_orig, collect_translated=False):
     """
-    create an Article collection from the raw json file
-
+    create an Article Collection from the raw json file
     Args:
-        json_orig:
+        json_orig: (dict) the orgininal json file
         collect_translated: (bool)
-
     Returns:
         (ArticleCollection)
     """
@@ -82,8 +90,10 @@ def convert_raw_json(json_orig, collect_translated=False):
     for key in tqdm(json_orig):
         for i in range(len(json_orig[key])):
             article = Article(json_orig[key][i], key)
+
             # check the validity of the date
             date_valid = check_date_validity(article.date)
+
             # check if the article is translated
             is_not_translated = False
             if article.translated is not None:
@@ -91,13 +101,14 @@ def convert_raw_json(json_orig, collect_translated=False):
                     is_not_translated= True
                 else:
                     continue
+
             # check if the length is within the desired length
             #is_valid_length = check_length_validity(article.description, nlp)
 
             # check for classifier score
             is_high_score = check_score(article.subject_score)
 
-            # check for desription:
+            # check for description:
             include_desc = True if article.description is not None else False
             if is_high_score and is_not_translated and date_valid and include_desc:
                 collection.add_article(article)
@@ -106,8 +117,5 @@ def convert_raw_json(json_orig, collect_translated=False):
                 total_discarded += 1
     logger.info("Total valid articles: {}, total discarded: {}".format(
         total_valid, total_discarded))
-
-
-
 
     return collection

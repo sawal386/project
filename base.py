@@ -27,7 +27,6 @@ class ArticleCollection:
     def add_article(self, article, article_id=None):
         """
         adds an article to the collection
-
         Args:
             article: (Article)
             article_id: (int) article id
@@ -41,11 +40,10 @@ class ArticleCollection:
     def get_article(self, article_id):
         """
         returns the article associated with given id
-
         Args:
             article_id: (int)
-
-        Returns: (Article)
+        Returns:
+            (Article)
         """
 
         if article_id in self.all_articles:
@@ -55,19 +53,19 @@ class ArticleCollection:
 
     def get_size(self):
         """
-        Returns: (int) the number of articles in the collection
+        Returns:
+            (int) the number of articles in the collection
         """
 
         return len(self.all_articles)
 
     def get_articles_subject(self, subject):
         """
-        get articles according to subject and time
-
+        get articles for the given subject
         Args:
-            subject: (subject)
-
-        Returns: (SubjectCollection)
+            subject: (str)
+        Returns:
+            (SubjectCollection)
         """
 
         if subject is not None:
@@ -87,7 +85,7 @@ class ArticleCollection:
             year: (int) year
             month: (int) month
         Returns:
-            (ArticleCollec
+            (TimeCollection)
 
         """
         if year is None and month is None:
@@ -103,8 +101,7 @@ class ArticleCollection:
                     if int(date_split[0]) == year:
                         time_coll.add_article(self.all_articles[i], i)
             except IndexError:
-                if int(date_split[0]) == "year":
-                    time_coll.add_article(self.all_articles[i], i)
+                print("Error in the year and month")
 
         return time_coll
 
@@ -133,7 +130,7 @@ class ArticleCollection:
                        col_name="inference_sentence"):
         """
         Exports the data in parquet format. It is the format that is compatible with
-        the inference code
+        the inference code in Liang et al.
         Args:
             folder_name: (str) name of the folder
             file_name: (str) name of the file
@@ -197,24 +194,31 @@ class Article:
         subject: (str) the subject the article is associated with
         subject_score: (float) the score for the subject prediction
         language: (str) the language in which the article was written
-        language_score: (float) the score for language prediction
+        pred_language_score: (float) the score for language prediction
         description: (str) the description of the article
         title: (str) the title of the article
         identifier: (str) the identifier in the source json file
         base_key: (str) the key in the json file associated with the article
-        source: (str)
+        source: (str) the article source
         translated: (bool) if the article is translated
-        translated_description: (List[str])
+        all_descriptions: (List[str]) translated and non-translated (if present)
     """
 
     def __init__(self, source_json, base_key=None, subject_key="predicted_fos"):
         """
+        We select the set of information that is useful for analysis. Think of this
+        as a shortened representation of the original json data
         Args:
             source_json: (dict) the source json data
+            subject_key: (str) the keyword in the source json file used for
+                                extracting subjects of an article
+            base_key: (str) the first key in the source json hierarchy
         """
 
         self.date = source_json["date"][0]
         all_subjects = source_json[subject_key]
+
+        # the subject associated with the article
         if len(all_subjects) != 0:
             self.subject = all_subjects[0][0].lower()
             self.subject_score = float(all_subjects[0][1])
@@ -222,11 +226,13 @@ class Article:
             self.subject = None
             self.subject_score = None
 
+        # the description (most likely the abstract)
         try:
             self.description = source_json["description"][0]
         except IndexError:
             self.description = None
 
+        # if the article is translated or not
         try:
             if len(source_json["description"]) > 1:
                 self.translated = True
@@ -238,16 +244,19 @@ class Article:
             self.translated = None
             self.all_descriptions = None
 
+        # the title of the article
         try:
             self.title = source_json["title"][0]
         except IndexError:
             self.title = None
 
+        # the identifier
         try:
             self.identifier = source_json["identifier"][0]
         except IndexError:
             self.identifier = None
 
+        # predicted language + prediction score
         try:
             self.pred_language = source_json["predicted_language"][0][0]
             self.pred_language_score = float(source_json["predicted_language"][0][1])
@@ -255,20 +264,22 @@ class Article:
             self.pred_language = None
             self.pred_language_score = None
 
+        # the language
         try:
             self.language = source_json["language"][0]
         except IndexError:
             self.language = None
 
+        # the source
         try:
             self.source = source_json["source"][0]
         except IndexError:
             self.source = None
 
+        # the authors
         try:
             self.authors = source_json["creator"]
         except IndexError:
             self.authors = None
-
 
         self.base_key = base_key

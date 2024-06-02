@@ -2,6 +2,13 @@
 
 source scripts/settings.sh
 
+# you can add subjects and years. for example,
+## for sub in "education" "medicine"
+## do
+##     for year in 2024 2023 2022 2021
+##     do
+##           {Rest of the code }
+
 for sub in "education"
 do
     for year in 2024

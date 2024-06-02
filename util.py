@@ -1,6 +1,6 @@
 ## This file contain useful functions
-import pickle
 
+import pickle
 import spacy
 import re
 from pathlib import Path

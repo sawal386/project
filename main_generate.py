@@ -36,9 +36,12 @@ if __name__ == "__main__":
     logger = setup_logger("my_logger", "run.log")
     with open(json_path, "r") as f:
         raw_json = json.load(f)
+
     all_collection = convert_raw_json(raw_json)
     subj_collection = all_collection.get_articles_subject(args.subject)
+    # save the entire collection
     save_pkl(subj_collection, output_folder, "{}_{}_whole".format(args.subject, args.year))
+
     logger.info("Subject size:{}".format(subj_collection.get_size()))
     total_data = 0
     if args.month is None:

@@ -2,18 +2,21 @@ This repository describes on how to run the full pipeline. Step 3 is the most ti
 
 1. Clone the repository 
 
-   git clone 
+   git clone https://github.com/sawal386/project
+
 2. cd into the directory 
     
     cd project 
 
-3. The first step is to tokenize the data and store it as parquet file. Open scripts/settings.sh and check if the directories are correct. Also go over generate_data.sh. 
+3. The first step is to get the data of interest from the source json file. Open scripts/settings.sh and check if the directories are correct. Basically, you need to specify the directory containing json data and the output location.  Also go over generate_data.sh. The run, 
     
     bash scripts/generate_data.sh 
 
-The source data for this is the raw json file containing the information about all the articles. I am assuming the file is name as "{year}.json". If possible, follow this convention. Otherwise, you will have to make modifications in main_generate.py. The outputs are automatically saved in the path "inference_data/{subject}/{year}_{month}.parquet". Additionally, there is also an accompanying text file "inference_data/{subject}/meta_{year}_{month}.csv". This is meant to a metadata file. As of now it contains information about the sentence and source article id. 
+The source data for this is the raw json file containing the information about all the articles. I am assuming the file is name as "{year}.json". If possible, follow this convention. Otherwise, you will have to make modifications in main_generate.py. The outputs are automatically saved in the path "inference_data/{subject}/{subject}_{year}_{month}". The saved file is a .pkl file containing TimeCollection object. It includes all articles published in the given year and month. 
 
-Note that this takes sometime to complete.
+Note that this takes sometime to complete. The most expensive phase of this is at the beginning. Uploading 10 Gigs of json file into the memory takes time. Also, make sure sufficient memory is available. Otherwise the program crashes. 
+
+******Ignore step 4 for now **********
 
 4. Now that we have created the inference data, we will run the actual inference. Before this check the script run_inference.sh in the folder scripts. Make sure the paths are correct. Next run,
 
