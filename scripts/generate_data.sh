@@ -4,7 +4,7 @@ source scripts/settings.sh
 
 for sub in "education"
 do
-    for year in 2021
+    for year in 2024
     do
         python main_generate.py \
             --input_loc ${BASE_JSON_DIR} \

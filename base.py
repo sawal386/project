@@ -203,6 +203,8 @@ class Article:
         identifier: (str) the identifier in the source json file
         base_key: (str) the key in the json file associated with the article
         source: (str)
+        translated: (bool) if the article is translated
+        translated_description: (List[str])
     """
 
     def __init__(self, source_json, base_key=None, subject_key="predicted_fos"):
@@ -219,10 +221,22 @@ class Article:
         else:
             self.subject = None
             self.subject_score = None
+
         try:
             self.description = source_json["description"][0]
         except IndexError:
-            self.description = ""
+            self.description = None
+
+        try:
+            if len(source_json["description"]) > 1:
+                self.translated = True
+                self.all_descriptions = source_json["description"]
+            else:
+                self.translated = False
+                self.all_descriptions = None
+        except IndexError:
+            self.translated = None
+            self.all_descriptions = None
 
         try:
             self.title = source_json["title"][0]
@@ -240,6 +254,7 @@ class Article:
         except IndexError:
             self.pred_language = None
             self.pred_language_score = None
+
         try:
             self.language = source_json["language"][0]
         except IndexError:
@@ -250,6 +265,10 @@ class Article:
         except IndexError:
             self.source = None
 
+        try:
+            self.authors = source_json["creator"]
+        except IndexError:
+            self.authors = None
 
 
         self.base_key = base_key
