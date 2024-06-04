@@ -4,6 +4,8 @@ import pickle
 import spacy
 import re
 from pathlib import Path
+import re
+
 
 def year_checker(collection, year):
     """
@@ -91,4 +93,48 @@ def save_pkl(obj, folder, name):
     with open(full, "wb") as handle:
         pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
+def FleschReadabilityEase(text):
+    if len(text) > 0:
+        return 206.835 - (1.015 * len(text.split()) / len(text.split('.'))) - 84.6 * (sum(list(
+            map(lambda x: 1 if x in ["a", "i", "e", "o", "u", "y", "A", "E", "I", "O", "U", "y"] else 0, text))) / len(
+            text.split()))
 
+
+def ARI(text):
+    score = 0.0
+    if len(text) > 0:
+        score = 4.71 * (len(text) / len(text.split())) + 0.5 * (len(text.split()) / len(text.split('.'))) - 21.43
+        return score if score > 0 else 0
+
+
+def FleschKincaidTest(text):
+    score = 0.0
+    if len(text) > 0:
+        score = (0.39 * len(text.split()) / len(text.split('.'))) + 11.8 * (sum(list(
+            map(lambda x: 1 if x in ["a", "i", "e", "o", "u", "y", "A", "E", "I", "O", "U", "y"] else 0, text))) / len(
+            text.split())) - 15.59
+        return score if score > 0 else 0
+
+
+def coleman_liau_index(text):
+    # Count letters (ignoring non-letter characters)
+    letters = sum(c.isalpha() for c in text)
+
+    # Count words by splitting text on whitespace
+    words = len(text.split())
+
+    # Count sentences using regex to consider '.', '!', '?' as end of sentences
+    sentences = len(re.split(r'[.!?]+', text)) - 1  # subtract one for the last split
+
+    # Calculate the average number of letters and sentences per 100 words
+    if words == 0:
+        average_letters_per_100_words = 0
+        average_sentences_per_100_words = 0
+    else:
+        average_letters_per_100_words = (letters / words) * 100
+        average_sentences_per_100_words = (sentences / words) * 100
+
+    # Coleman-Liau index calculation
+    cli = (0.0588 * average_letters_per_100_words) - (0.296 * average_sentences_per_100_words) - 15.8
+
+    return cli

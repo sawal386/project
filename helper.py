@@ -108,9 +108,12 @@ def convert_raw_json(json_orig, collect_translated=False):
             # check for classifier score
             is_high_score = check_score(article.subject_score)
 
+            # check for language
+            is_eng = True if article.language == "eng" else False
+
             # check for description:
             include_desc = True if article.description is not None else False
-            if is_high_score and is_not_translated and date_valid and include_desc:
+            if is_high_score and is_not_translated and date_valid and include_desc and is_eng:
                 collection.add_article(article)
                 total_valid += 1
             else:

@@ -167,6 +167,10 @@ class ArticleCollection:
                 count_next = count + len(sentences)
                 meta_data["sentence_no"] += list(range(count, count_next))
                 count = count_next
+                n_tokens = 0
+                for s in sentences:
+                    n_tokens += len(s)
+                self.all_articles[at_id].num_tokens = n_tokens
 
         df_sentences = pd.DataFrame.from_dict(sentence_dict)
         df_meta = pd.DataFrame.from_dict(meta_data)
@@ -175,6 +179,12 @@ class ArticleCollection:
         df_meta.to_csv(meta_path)
         print("File Exported as: {}".format(full_path))
 
+    def update_token_lengths(self):
+        """updates the token length attribute of the articles"""
+        for ar_id in self.all_articles:
+            ar = self.all_articles[ar_id]
+            if ar.num_tokens is None:
+                ar.update_token_length()
 
 class SubjectCollection(ArticleCollection):
 
@@ -217,6 +227,12 @@ class Article:
 
         self.date = source_json["date"][0]
         all_subjects = source_json[subject_key]
+
+        ## add this later
+        self.readability_score = None
+        self.readability_metric = None
+
+        self.num_tokens = None
 
         # the subject associated with the article
         if len(all_subjects) != 0:
@@ -282,4 +298,29 @@ class Article:
         except IndexError:
             self.authors = None
 
+
         self.base_key = base_key
+
+    def update_readability_score(self, score, metric):
+        """
+        add readability score to the data
+        Args:
+            score: (float) the score
+            metric: (str) the name of the metric
+        """
+
+        self.readability_score = score
+        self.readability_metric = metric
+
+    def update_token_length(self):
+        if self.description is not None:
+            try:
+                nlp = spacy.load("en_core_web_lg")
+            except OSError:
+                from spacy.cli import download
+                print("Downloading model")
+                download("en_core_web_lg")
+                nlp = spacy.load("en_core_web_lg")
+            self.num_tokens = tokenize(self.description, nlp)
+        else:
+            self.num_tokens = None
